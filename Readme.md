@@ -10,3 +10,7 @@ I made this myself so you do not need COMSOL when you just need to quick mode in
 1. Set your MATLAB working directory to `OpenSource FEM_1.0`.
 2. Open `Ridge_Main.m` located inside the `Ridge_waveguide` folder.
 3. Input your structure's geometry parameters (in $\mu\text{m}$) and hit **Run**.
+
+
+# Reference
+Fallahkhair, A. B., Li, K. S., & Murphy, T. E. (2008). Vector finite difference modesolver for anisotropic dielectric waveguides. Journal of lightwave technology, 26(11), 1423-1431.
