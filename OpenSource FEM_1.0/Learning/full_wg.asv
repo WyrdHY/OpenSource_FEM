@@ -1,0 +1,103 @@
+% =========================================================================
+% Ridge Waveguide User Input
+% =========================================================================
+resolution = 100;
+n1 = 1.4;          % Substrate
+n2 = 1.464;        % Core
+n3 = 1.00;         % Cladding (air)
+
+h1 = 8;           % Substrate Height
+h2 = 5;           % Core Height
+h3 = 8;           % Upper cladding Hri
+
+rh = 5;           % Ridge height
+rw = 7;           % Ridge half-width
+side = 5;         % Space on side
+
+dx = 0.125;        % Grid size (horizontal)
+dy = 0.125;        % Grid size (vertical)
+lambda = 1.55;      % Vacuum wavelength (Change to 0.52 for your green light)
+nmodes = 1;         % Number of modes to compute
+
+
+
+boundary_cond = '0000'; 
+
+
+% Below are all written by Gemini
+%% Mesh
+[x,y,xc,yc,nx,ny,eps,edges] = waveguidemeshfull([n1,n2,n3], [h1,h2,h3], ...
+                                                rh, rw, side, dx, dy); 
+%% ---- Calculate H-fields and neff ----
+[Hx, Hy, neff] = wgmodes(lambda, n2, nmodes, dx, dy, eps, boundary_cond);
+fprintf(1, 'Effective index neff = %.6f\n', neff);
+
+%% ---- Convert H-fields to E-fields via Postprocessing ----
+% The exact syntax from help: [Hz, Ex, Ey, Ez] = postprocess(lambda, neff, Hx, Hy, dx, dy, eps, boundary)
+[Hz, Ex, Ey, Ez] = postprocess(lambda, neff, Hx, Hy, dx, dy, eps, boundary_cond);
+
+%% ---- Plot Electric Fields ----
+% Note: Ex and Ey have dimensions of [nx, ny] (400x304). 
+% Transposing them inside contourf perfectly aligns them with xc and yc.
+
+figure('Name', 'Waveguide Electric Fields (E-Field View)', 'NumberTitle', 'off', 'Position', [100, 200, 1000, 400]);
+
+% Plot Ex (Horizontal Electric Field Component)
+subplot(121);
+contourf(xc, yc, Ex', resolution, 'LineColor', 'none'); 
+shading interp; colormap(jet); colorbar;
+title('Ex Field component'); xlabel('x (\mu m)'); ylabel('y (\mu m)'); 
+hold on; for v = edges, line(v{:}, 'Color', 'w', 'LineWidth', 1.2); end; hold off; 
+
+% Plot Ey (Vertical Electric Field Component)
+subplot(122);
+contourf(xc, yc, Ey', resolution, 'LineColor', 'none'); 
+shading interp; colormap(jet); colorbar;
+title('Ey Field component'); xlabel('x (\mu m)'); ylabel('y (\mu m)'); 
+hold on; for v = edges, line(v{:}, 'Color', 'w', 'LineWidth', 1.2); end; hold off;
+
+%% ==================== NEW SECTION: PLOT REFRACTIVE INDEX PROFILE ====================
+% Calculate refractive index from permittivity (n = sqrt(eps))
+n_profile = sqrt(eps);
+
+figure('Name', 'Refractive Index Profile Validation', 'NumberTitle', 'off', 'Position', [100, 500, 600, 450]);
+
+% Plot n profile using xc and yc (since eps is defined at cell centers)
+% We use 20 contour levels and DO NOT use 'shading interp' to keep edges sharp and clean
+contourf(xc, yc, n_profile', 20, 'LineColor', 'none'); 
+colormap(parula); % 'parula' or 'gray' is great for refractive index contrast
+colorbar;
+axis image; % Force correct physical aspect ratio
+title('Refractive Index Distribution (n)'); xlabel('x (\mu m)'); ylabel('y (\mu m)'); 
+
+% Overlay the structural edges to verify alignment
+hold on; 
+for v = edges
+    line(v{:}, 'Color', 'r', 'LineWidth', 1.5, 'LineStyle', '--'); % Red dashed lines for ideal geometry
+end
+hold off;
+
+
+%% ---- Calculate H-fields and neff ----
+[Hx, Hy, neff] = wgmodes(lambda, n2, nmodes, dx, dy, eps, boundary_cond);
+fprintf(1, 'Effective index neff = %.6f\n', neff);
+
+%% ---- Convert H-fields to E-fields via Postprocessing ----
+[Hz, Ex, Ey, Ez] = postprocess(lambda, neff, Hx, Hy, dx, dy, eps, boundary_cond);
+
+%% ---- Plot Electric Fields ----
+figure('Name', 'Waveguide Electric Fields (High-Res View)', 'NumberTitle', 'off', 'Position', [100, 100, 1100, 450]);
+
+% Plot Ex (Horizontal Electric Field Component)
+subplot(121);
+contourf(xc, yc, Ex', 100, 'LineColor', 'none'); 
+shading interp; colormap(jet); colorbar; axis image; 
+title('Ex Field component'); xlabel('x (\mu m)'); ylabel('y (\mu m)'); 
+hold on; for v = edges, line(v{:}, 'Color', 'w', 'LineWidth', 1.5); end; hold off; 
+
+% Plot Ey (Vertical Electric Field Component)
+subplot(122);
+contourf(xc, yc, Ey', 100, 'LineColor', 'none'); 
+shading interp; colormap(jet); colorbar; axis image; 
+title('Ey Field component'); xlabel('x (\mu m)'); ylabel('y (\mu m)'); 
+hold on; for v = edges, line(v{:}, 'Color', 'w', 'LineWidth', 1.5); end; hold off;
