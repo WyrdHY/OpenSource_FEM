@@ -14,7 +14,7 @@ thox     = "Library/Material/Remeasured_Good_THOX.txt";
 % Unit must be in [um]
 % =========================================================================
 sim_obj= struct;
-sim_obj.lambda = 1.55;    
+sim_obj.lambda = 0.532;    
 
 % Refractive index
 sim_obj.n1 = mat(thox,sim_obj.lambda);          % Substrate
@@ -22,16 +22,16 @@ sim_obj.n2 = mat(sputter2,sim_obj.lambda);        % Core
 sim_obj.n3 = 1.00;         % Cladding (air) 
 
 % Define GEO
-sim_obj.rw = 6;            % Waveguide Width
-sim_obj.h1 = 8;            % Substrate Height
-sim_obj.h2 = 1.8;          % Waveguide height
+sim_obj.rw = 1;            % Waveguide Width
+sim_obj.h1 = 10;            % Substrate Height
+sim_obj.h2 = 2;          % Waveguide height
 sim_obj.h3 = 8;            % Upper cladding Height
 sim_obj.side = 5;          % Space on side
 
 % Solver Config
 sim_obj.dx = auto_mesh(sim_obj);        
 sim_obj.dy = auto_mesh(sim_obj);        
-sim_obj.nmodes = 1;        
+sim_obj.nmodes = 2;        
 sim_obj.boundary_cond = '0000'; 
 
 % Plot Config 
